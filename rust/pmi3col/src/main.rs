@@ -24,7 +24,9 @@ fn main() {
 
     for clause in sat.clauses {
         let lits = clause.literals;
-        let lits_str: Vec<(String, String)> = lits.iter().map(|l| (l.to_string(), { let mut s = String::from("~"); s.push_str(&l.to_string()); s })).collect();
+
+        // TODO FIX THIS
+        let lits_str:  = lits.iter().map(|l| (l.to_string(), { let mut s = String::from("~"); s.push_str(&l.to_string()); s })).collect();
         for (l, lp) in std::iter::zip(&lits, &lits_str) {
             let il = graph.add_node(&lp.0);
             let ilp = graph.add_node(&lp.1);
