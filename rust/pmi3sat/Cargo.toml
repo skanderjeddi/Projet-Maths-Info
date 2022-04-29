@@ -1,5 +1,5 @@
 [package]
-name = "mis63sat"
+name = "s6-3sat"
 version = "0.1.0"
 edition = "2021"
 
