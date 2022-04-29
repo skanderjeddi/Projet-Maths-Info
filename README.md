@@ -1,2 +1,2 @@
-# PMIS6
+# MIS6
 Projets Maths-Info du semestre 6
