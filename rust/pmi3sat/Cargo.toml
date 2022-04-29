@@ -1,5 +1,5 @@
 [package]
-name = "s6-3sat"
+name = "pmi3sat"
 version = "0.1.0"
 edition = "2021"
 
