@@ -57,12 +57,12 @@ impl SAT {
         valid_valuations
     }
 
-    pub fn collect_literals(&self) -> Vec<Literal> {
+    pub fn collect_literals(&self) -> Vec<String> {
         let mut lits = vec![];
         for c in &self.clauses[..] {
             for l in c.literals {
-                if !lits.contains(&l) {
-                    lits.push(l);
+                if !lits.contains(&l.to_string()) {
+                    lits.push(l.to_string());
                 }
             }
         }
