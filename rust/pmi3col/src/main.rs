@@ -5,45 +5,94 @@ use pmi3sat::cnf::*;
 use pmi3sat::sat::SAT;
 
 fn main() {
-    let mut graph = Graph::<&str, (), petgraph::Undirected>::new_undirected();
-    let t = graph.add_node("T");
-    let f = graph.add_node("F");
-    let b = graph.add_node("B");
+    let mut graph = Graph::<String, (), petgraph::Undirected>::new_undirected();
+    let t = graph.add_node(String::from("T"));
+    let f = graph.add_node(String::from("F"));
+    let b = graph.add_node(String::from("B"));
     graph.add_edge(t, f, ());
     graph.add_edge(f, b, ());
     graph.add_edge(t, b, ());
 
-    let n = 5;
-
     let mut clauses = vec![];
-    for _ in 0..n {
-        clauses.push(Clause::random(n));
+
+    for _ in 0..3 {
+        clauses.push(Clause::random(12));
     }
     let sat: SAT = SAT::new(clauses);
-
+    println!("{}", &sat);
 
     for clause in sat.clauses {
-        let lits = clause.literals;
-
-        // TODO FIX THIS
-        let lits_str:  = lits.iter().map(|l| (l.to_string(), { let mut s = String::from("~"); s.push_str(&l.to_string()); s })).collect();
-        for (l, lp) in std::iter::zip(&lits, &lits_str) {
-            let il = graph.add_node(&lp.0);
-            let ilp = graph.add_node(&lp.1);
-            let or1 = graph.add_node("-");
-            let or2 = graph.add_node("-");
-            let or3 = graph.add_node("-");
-            graph.add_edge(il, ilp, ());
-            graph.add_edge(il, b, ());
-            graph.add_edge(ilp, b, ());
-            match l.negated {
-                Negated::YES => graph.add_edge(ilp, or1, ()),
-                Negated::NO => graph.add_edge(il, or1, ()),
+        println!("HERE");
+        let mut clause_edges = vec![];
+        let org1_node = graph.add_node(String::from("-"));
+        let org2_node = graph.add_node(String::from("-"));
+        let org3_node = graph.add_node(String::from("-"));
+        let org4_node = graph.add_node(String::from("-"));
+        let org5_node = graph.add_node(String::from("-"));
+        let org6_node = graph.add_node(String::from("-"));
+        clause_edges.push(graph.update_edge(org1_node, org2_node, ()));
+        clause_edges.push(graph.update_edge(org1_node, org3_node, ()));
+        clause_edges.push(graph.update_edge(org2_node, org3_node, ()));
+        clause_edges.push(graph.update_edge(org3_node, org4_node, ()));
+        clause_edges.push(graph.update_edge(org5_node, org4_node, ()));
+        clause_edges.push(graph.update_edge(org4_node, org6_node, ()));
+        clause_edges.push(graph.update_edge(org5_node, org6_node, ()));
+        clause_edges.push(graph.update_edge(org6_node, b, ()));
+        clause_edges.push(graph.update_edge(org6_node, f, ()));
+        let literals: Vec<String> = clause.literals.iter().map(|l| l.to_string()).collect();
+        let literals_negated: Vec<String> = literals.iter().map(|l| { let mut s = String::from("~"); s.push_str(&l.to_string()); s }).collect();
+        let mut i = 0;
+        for (lit_str, lit_neg_str) in std::iter::zip(literals, literals_negated) {
+            let lit_node = graph.add_node(lit_str.clone());
+            let lit_neg_node = graph.add_node(lit_neg_str.clone());
+            clause_edges.push(graph.update_edge(lit_node, lit_neg_node, ()));
+            clause_edges.push(graph.update_edge(lit_node, b, ()));
+            clause_edges.push(graph.update_edge(lit_neg_node, b, ()));
+            match i {
+                0 => {
+                    match clause.literals[0].negated {
+                        Negated::YES => {
+                            clause_edges.push(graph.update_edge(lit_neg_node, org1_node, ()));
+                        },
+                        Negated::NO => {
+                            clause_edges.push(graph.update_edge(lit_node, org1_node, ()));
+                        }
+                    }
+                },
+                1 => {
+                    match clause.literals[1].negated {
+                        Negated::YES => {
+                            clause_edges.push(graph.update_edge(lit_neg_node, org2_node, ()));
+                        },
+                        Negated::NO => {
+                            clause_edges.push(graph.update_edge(lit_node, org2_node, ()));
+                        }
+                    }
+                },
+                2 => {
+                    match clause.literals[2].negated {
+                        Negated::YES => {
+                            clause_edges.push(graph.update_edge(lit_neg_node, org5_node, ()));
+                        },
+                        Negated::NO => {
+                            clause_edges.push(graph.update_edge(lit_node, org5_node, ()));
+                        }
+                    }
+                },
+                _ => ()
             };
-            graph.add_edge(or1, or2, ());
-            graph.add_edge(or1, or3, ());
-            graph.add_edge(or2, or3, ());
+            i += 1;
+        }
+        for edge in clause_edges {
+            println!("\t{} -- {}", graph.edge_endpoints(edge).unwrap().0.index(), graph.edge_endpoints(edge).unwrap().1.index());
         }
     }
-    println!("{:?}", Dot::with_config(&graph, &[Config::EdgeNoLabel]));
+
+    let mut graph_str = format!("{:?}", Dot::with_config(&graph, &[Config::EdgeNoLabel]));
+    graph_str = graph_str.replace("\\\"", "");
+    graph_str = graph_str.replace("label = \"T\"", "label = \"T\" color = \"green\" style = \"filled\"");
+    graph_str = graph_str.replace("label = \"F\"", "label = \"F\" color = \"red\" style = \"filled\"");
+    graph_str = graph_str.replace("label = \"B\"", "label = \"B\" color = \"blue\" style = \"filled\"");
+
+    println!("{graph_str}");
 }
