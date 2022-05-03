@@ -112,29 +112,29 @@ impl Clause {
                 s.push_str(&(self.literals[0].index.to_string()));
             }
             Negated::YES => {
-                s.push_str("!x");
+                s.push_str("¬x");
                 s.push_str(&(self.literals[0].index.to_string()));
             }
         }
-        s.push_str(" || ");
+        s.push_str(" ∨ ");
         match self.literals[1].negated {
             Negated::NO => {
                 s.push_str("x");
                 s.push_str(&(self.literals[1].index.to_string()));
             }
             Negated::YES => {
-                s.push_str("!x");
+                s.push_str("¬x");
                 s.push_str(&(self.literals[1].index.to_string()));
             }
         }
-        s.push_str(" || ");
+        s.push_str(" ∨ ");
         match self.literals[2].negated {
             Negated::NO => {
                 s.push_str("x");
                 s.push_str(&(self.literals[2].index.to_string()));
             }
             Negated::YES => {
-                s.push_str("!x");
+                s.push_str("¬x");
                 s.push_str(&(self.literals[2].index.to_string()));
             }
         }
